@@ -5,3 +5,4 @@ pymongo
 cloudscraper
 python-dotenv
 pytz
+aiohttp
