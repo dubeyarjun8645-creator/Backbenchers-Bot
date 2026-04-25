@@ -1,0 +1,7 @@
+pyrogram
+tgcrypto
+flask
+pymongo
+cloudscraper
+python-dotenv
+pytz
