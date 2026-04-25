@@ -2,23 +2,23 @@ import os
 from os import environ
 
 # API Configuration
-API_ID = int(os.environ.get("API_ID", "25933223"))
-API_HASH = os.environ.get("API_HASH", "6ef5a426d85b7f01562a41e6416791d3")
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
+API_ID = int(os.environ.get("API_ID", "34338736"))
+API_HASH = os.environ.get("API_HASH", "cb0624172e5db326489e1855a83d0c26")
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "8735659924:AAGAYER6YNgxAgzd3Wr4suxwgIQbgFzcch8")
 
-CREDIT = os.environ.get("CREDIT", "𓍯𝙎𝙪𝙟𝙖𝙡⚝")
+CREDIT = os.environ.get("CREDIT", "𓍯Arjun⚝")
 # MongoDB Configuration
-DATABASE_NAME = os.environ.get("DATABASE_NAME", "UGxPRO")
-DATABASE_URL = os.environ.get("DATABASE_URL", "mongodb+srv://sujalbot:sujalbot@cluster0.mnjoqfu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+DATABASE_NAME = os.environ.get("DATABASE_NAME", DATABASE_NAME = "UGxPRO")
+DATABASE_URL = os.environ.get("DATABASE_URL", "mongodb+srv://DemoArjun:Arjun@@496333@cluster0.mrmyunr.mongodb.net/?appName=Cluster0")
 MONGO_URL = DATABASE_URL  # For auth system
 
 # Owner and Admin Configuration
-OWNER_ID = int(os.environ.get("OWNER_ID", ""))
-ADMINS = [8458169280, 8383373235]  # dono admins id list me
+OWNER_ID = int(os.environ.get("OWNER_ID", "8735659924"))
+ADMINS = [8439641003, 7973698690]  # dono admins id list me
 
 
 # Channel Configuration
-PREMIUM_CHANNEL = "https://t.me/+W-Q51EuLf2QwYTl"
+PREMIUM_CHANNEL = "https://t.me/+IB4WJmz0n4QxMjFll"
 # Thumbnail Configuration
 THUMBNAILS = list(map(str, os.environ.get("THUMBNAILS", "https://i.fbcd.co/products/original/ug-logo-designs-2-acbfbf7b80e16df4c902a34d1caf148e7e1feca736e21075114990e62294f3ac.jpg").split()))
 
