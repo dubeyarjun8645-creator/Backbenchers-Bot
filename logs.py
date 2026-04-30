@@ -1,20 +1,27 @@
-# logs.py
-
 import logging
+import os
 from logging.handlers import RotatingFileHandler
-from datetime import datetime, timedelta
 
-# Set up logging
+# Logs folder setup (Render compatibility)
+if not os.path.exists("logs"):
+    os.makedirs("logs")
+
+# Set up logging configuration
 logging.basicConfig(
-    level=logging.ERROR,
+    level=logging.INFO, # Changed from ERROR to INFO to see bot startup logs
     format="%(asctime)s - %(levelname)s - %(message)s [%(filename)s:%(lineno)d]",
     datefmt="%d-%b-%y %H:%M:%S",
     handlers=[
-        RotatingFileHandler("logs.txt", maxBytes=50000000, backupCount=10),
+        # Stores logs in logs/logs.txt and rotates at 5MB
+        RotatingFileHandler("logs/logs.txt", maxBytes=5000000, backupCount=5),
         logging.StreamHandler(),
     ],
 )
-logging.getLogger("pyrogram").setLevel(logging.WARNING)
 
-# Initialize logger
-logger = logging.getLogger()
+# Set Pyrogram and other noisy libraries to WARNING only
+logging.getLogger("pyrogram").setLevel(logging.WARNING)
+logging.getLogger("tgcrypto").setLevel(logging.WARNING)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+
+# Initialize logger instance
+logging = logging.getLogger()
