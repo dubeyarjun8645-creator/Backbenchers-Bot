@@ -13,12 +13,12 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "mongodb+srv://DemoArjun:Arjun@@49
 MONGO_URL = DATABASE_URL  # For auth system
 
 # Owner and Admin Configuration
-OWNER_ID = int(os.environ.get("OWNER_ID", "8735659924"))
-ADMINS = [8439641003, 7973698690]  # dono admins id list me
+OWNER_ID = int(os.environ.get("OWNER_ID", "8606649929"))
+ADMINS = [7973698690,8269675690 ]  # dono admins id list me
 
 
 # Channel Configuration
-PREMIUM_CHANNEL = "https://t.me/+IB4WJmz0n4QxMjFll"
+PREMIUM_CHANNEL = "https://t.me/+IB4WJmz0n4QxMjFl"
 # Thumbnail Configuration
 THUMBNAILS = list(map(str, os.environ.get("THUMBNAILS", "https://i.fbcd.co/products/original/ug-logo-designs-2-acbfbf7b80e16df4c902a34d1caf148e7e1feca736e21075114990e62294f3ac.jpg").split()))
 
