@@ -9,7 +9,7 @@ import requests
 import m3u8
 from pathlib import Path
 from urllib.parse import urljoin
-from vars import CREDIT, db # Importing db instance from vars or db
+from vars import CREDIT, DATABASE_NAME #
 from utils import progress_bar
 
 # Render path configuration
@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # build.sh installs tools in the 'bin' folder
 MP4DECRYPT = os.path.join(BASE_DIR, "bin", "mp4decrypt")
 
-# Ensure downloads directory exists for thumbnails/temp files
+# Ensure downloads directory exists
 if not os.path.exists("downloads"):
     os.makedirs("downloads")
 
@@ -32,17 +32,6 @@ def duration(filename):
         return float(result.stdout)
     except:
         return 0
-
-async def download(url, name):
-    """Download PDF or small files"""
-    ka = f'{name}.pdf'
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as resp:
-            if resp.status == 200:
-                f = await aiofiles.open(ka, mode='wb')
-                await f.write(await resp.read())
-                await f.close()
-    return ka
 
 async def split_file(file_path, chunk_size_mb=1900):
     """Split files larger than 2GB for Telegram"""
@@ -62,7 +51,6 @@ async def split_file(file_path, chunk_size_mb=1900):
     for i in range(num_chunks):
         output_file = f"{base_name}_part{i+1}{ext}"
         start_time = i * segment_duration
-        # Fast seeking with -ss before -i
         cmd = f'ffmpeg -ss {start_time} -t {segment_duration} -i "{file_path}" -c copy "{output_file}" -y'
         os.system(cmd)
         if os.path.exists(output_file):
@@ -75,14 +63,14 @@ async def decrypt_and_merge_video(mpd_url, keys_string, output_path, output_name
     output_path = Path(output_path)
     output_path.mkdir(parents=True, exist_ok=True)
     
-    # Check if mp4decrypt exists
+    # Check if mp4decrypt exists in bin or system
     tool = MP4DECRYPT if os.path.exists(MP4DECRYPT) else "mp4decrypt"
 
     # 1. Download encrypted streams
     cmd1 = f'yt-dlp -f "bv[height<={quality}]+ba/b" --allow-unplayable-format -o "{output_path}/encrypted.%(ext)s" "{mpd_url}"'
     os.system(cmd1)
 
-    # 2. Decrypt
+    # 2. Decrypt parts
     for file in output_path.glob("encrypted.*"):
         if file.suffix == ".mp4":
             os.system(f'{tool} {keys_string} "{file}" "{output_path}/video.mp4"')
@@ -90,34 +78,19 @@ async def decrypt_and_merge_video(mpd_url, keys_string, output_path, output_name
             os.system(f'{tool} {keys_string} "{file}" "{output_path}/audio.m4a"')
         file.unlink()
 
-    # 3. Merge
+    # 3. Merge video and audio
     final_file = output_path / f"{output_name}.mp4"
     os.system(f'ffmpeg -i "{output_path}/video.mp4" -i "{output_path}/audio.m4a" -c copy "{final_file}" -y')
     
-    # Cleanup temp parts
+    # Cleanup
     for temp in ["video.mp4", "audio.m4a"]:
         temp_path = output_path / temp
         if temp_path.exists(): temp_path.unlink()
         
     return str(final_file)
 
-async def download_video(url, cmd, name):
-    """Standard downloader using yt-dlp + aria2c"""
-    # Adding aria2c for faster speed on Render
-    download_cmd = f'{cmd} --external-downloader aria2c --downloader-args "aria2c:-x 16 -s 16 -j 16"'
-    os.system(download_cmd)
-    
-    # Find the downloaded file
-    for ext in ['mp4', 'mkv', 'webm']:
-        file_path = f"{name}.{ext}"
-        if os.path.exists(file_path):
-            if os.path.getsize(file_path) > 2000 * 1024 * 1024:
-                return await split_file(file_path)
-            return [file_path]
-    return [f"{name}.mp4"]
-
-async def send_vid(bot, m, cc, filename, thumb, name, prog, channel_id, watermark=""):
-    """Final uploader to Telegram"""
+async def send_vid(bot, m, cc, filename, thumb, name, prog, channel_id):
+    """Final uploader to Telegram with Thumbnail generation"""
     files = filename if isinstance(filename, list) else [filename]
     await prog.delete()
 
@@ -125,7 +98,7 @@ async def send_vid(bot, m, cc, filename, thumb, name, prog, channel_id, watermar
         status = await m.reply_text(f"📤 **Uploading Part {i+1}...**")
         start_time = time.time()
         
-        # Thumbnail Logic
+        # Safe Thumbnail Logic
         current_thumb = thumb
         if thumb == "/d" or not os.path.exists(str(thumb)):
             current_thumb = f"downloads/thumb_{i}.jpg"
@@ -146,8 +119,8 @@ async def send_vid(bot, m, cc, filename, thumb, name, prog, channel_id, watermar
         except Exception as e:
             await m.reply_text(f"❌ **Upload Error:** {str(e)}")
         
-        # Cleanup
+        # Cleanup file after upload
         if os.path.exists(file): os.remove(file)
-        if current_thumb and "downloads/thumb_" in current_thumb and os.path.exists(current_thumb):
+        if current_thumb and "downloads/thumb_" in str(current_thumb) and os.path.exists(str(current_thumb)):
             os.remove(current_thumb)
         await status.delete()
